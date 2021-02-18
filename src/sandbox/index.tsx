@@ -5,6 +5,7 @@ import Head from 'next/head';
 import { Flex } from '@stacks/ui';
 import { Title } from '@components/typography';
 import { UserCard } from '@sandbox/components/user-card';
+import { SandboxPageContent } from '@sandbox/new-page';
 
 const PageContent = dynamic(() => import('./components/page'), { ssr: false });
 
@@ -30,8 +31,7 @@ const SandboxPage: NextPage<any> = () => (
     <Head>
       <title>Sandbox | Stacks Explorer</title>
     </Head>
-    <PageTop />
-    <PageContent />
+    <SandboxPageContent />
   </>
 );
 

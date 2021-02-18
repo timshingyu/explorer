@@ -1,7 +1,27 @@
 export const fungibleTokenContract = {
   name: 'fungible-token-contract',
   source: `;; Implement the ft-trait trait defined in the ft-trait contract
-(impl-trait 'ST3J2GVMMM2R07ZFBJDWTYEYAR8FZH5WKDTFJ9AHA.ft-trait.ft-trait)
+(define-trait ft-trait
+  (
+    ;; Transfer from the caller to a new principal
+    (transfer (uint principal principal) (response bool uint))
+
+    ;; the human readable name of the token
+    (name () (response (string-ascii 32) uint))
+
+    ;; the ticker symbol, or empty if none
+    (symbol () (response (string-ascii 32) uint))
+
+    ;; the number of decimals used, e.g. 6 would mean 1_000_000 represents 1 token
+    (decimals () (response uint uint))
+
+    ;; the balance of the passed principal
+    (balance-of (principal) (response uint uint))
+
+    ;; the current total supply (which does not need to be a constant)
+    (total-supply () (response uint uint))
+  )
+)
 
 (define-fungible-token example-token)
 

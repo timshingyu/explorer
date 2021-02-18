@@ -7,6 +7,7 @@ import { SampleContracts } from '@sandbox/common/examples';
 import { StacksTestnet } from '@stacks/network';
 import { APP_DETAILS } from '@common/constants';
 import { authResponseState } from '@store/auth';
+import { Routes } from '@sandbox/common/types';
 
 export const appConfig = new AppConfig(['store_write', 'publish_data']);
 export const userSession = new UserSession({ appConfig });
@@ -82,6 +83,7 @@ export const txContractStateError = atom({
   default: undefined,
 });
 
+// @ts-ignore
 export const txContractState = selectorFamily<any, { apiServer: string; contractId: string }>({
   key: 'sandbox.txDetails',
   get: ({ apiServer, contractId }) => async () => {
@@ -154,7 +156,8 @@ export const readOnlyState = atom({
   default: undefined,
 });
 
-export const readOnlyResponseState = selectorFamily<any, any>({
+// @ts-ignore
+export const readOnlyResponseState = selectorFamily({
   key: 'sandbox.contract-call.read-only.response',
   get: ({
     contractName,
@@ -175,4 +178,9 @@ export const readOnlyResponseState = selectorFamily<any, any>({
       senderAddress,
     });
   },
+});
+
+export const sandboxRouteState = atom<Routes>({
+  key: 'sandbox.route',
+  default: 'deploy',
 });

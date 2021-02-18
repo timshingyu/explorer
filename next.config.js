@@ -24,6 +24,7 @@ module.exports = withBundleAnalyzer({
     NEXT_PUBLIC_SITE_NOTICE_BANNER_MESSAGE: process.env.NEXT_PUBLIC_SITE_NOTICE_BANNER_MESSAGE,
   },
   webpack(config, { dev }) {
+    config.output.webassemblyModuleFilename = 'static/wasm/[modulehash].wasm';
     const aliases = config.resolve.alias || (config.resolve.alias = {});
     const externals = config.externals || [];
 

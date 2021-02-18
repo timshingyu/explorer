@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Box, color, Flex, Fade } from '@stacks/ui';
-import { atom, useRecoilState } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { useClarityRepl } from '@sandbox/hooks/use-clarity-repl';
 import { AlertTriangleIcon } from '@components/icons/alert-triangle';
 import { CheckCircleIcon } from '@components/icons/check-circle';
@@ -51,14 +51,6 @@ const ClarityRepl = React.memo(({ show }: { show?: boolean }) => {
           style={styles}
           willChange="opacity"
         >
-          {/*<Box*/}
-          {/*  position="absolute"*/}
-          {/*  top="10px"*/}
-          {/*  right="153px"*/}
-          {/*  transform="rotate(45deg)"*/}
-          {/*  size="10px"*/}
-          {/*  bg={result?.valid ? color('feedback-success') : color('feedback-error')}*/}
-          {/*/>*/}
           <Flex
             transform="translateY(-1px)"
             bg={result?.valid ? color('feedback-success') : color('feedback-error')}
@@ -108,17 +100,46 @@ const ClarityRepl = React.memo(({ show }: { show?: boolean }) => {
   );
 });
 
+async function load(module, imports) {
+  if (typeof Response === 'function' && module instanceof Response) {
+    if (typeof WebAssembly.instantiateStreaming === 'function') {
+      try {
+        return await WebAssembly.instantiateStreaming(module, imports);
+      } catch (e) {
+        if (module.headers.get('Content-Type') != 'application/wasm') {
+          console.warn(
+            '`WebAssembly.instantiateStreaming` failed because your server does not serve wasm with `application/wasm` MIME type. Falling back to `WebAssembly.instantiate` which is slower. Original error:\n',
+            e
+          );
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    const bytes = await module.arrayBuffer();
+    return await WebAssembly.instantiate(bytes, imports);
+  } else {
+    const instance = await WebAssembly.instantiate(module, imports);
+
+    if (instance instanceof WebAssembly.Instance) {
+      return { instance, module };
+    } else {
+      return instance;
+    }
+  }
+}
+
 export const WasmComponent = dynamic(
   {
     loader: async () => {
-      const response = await fetch('/clarity_repl.wasm');
-      const buf = await response.arrayBuffer();
-      const rustModule = await WebAssembly.instantiate(buf);
-      return ({ show }: { show?: boolean }) => {
+      const response = await fetch('clarity-repl.wasm');
+      const rustModule = await load(response, {});
+      return () => {
         const [wasm, setWasm] = useRecoilState(clarityWasmAtom);
-        const { result } = useClarityRepl();
         const isBrowser = typeof window !== 'undefined';
-        React.useEffect(() => {
+        useEffect(() => {
+          console.log(rustModule);
           try {
             if (isBrowser && !wasm && rustModule) {
               setWasm(rustModule.instance.exports as any);
@@ -127,7 +148,7 @@ export const WasmComponent = dynamic(
             console.log(e);
           }
         }, [wasm, rustModule, isBrowser]);
-        return <ClarityRepl show={show} />;
+        return null;
       };
     },
   },
