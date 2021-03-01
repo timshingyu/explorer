@@ -92,7 +92,7 @@ export const DEFAULT_NETWORK_LIST = [
   },
 ];
 
-export const FATHOM_ID = NEXT_PUBLIC_FATHOM_ID || process.env.NEXT_PUBLIC_FATHOM_ID;
+export const FATHOM_ID = 'YAKFSIOZ' || NEXT_PUBLIC_FATHOM_ID || process.env.NEXT_PUBLIC_FATHOM_ID;
 
 export enum MODALS {
   SEARCH = 'modals/search',
